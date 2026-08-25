@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Universal AI Chat Exporter",
+  "version": "0.1.0",
+  "description": "Export the currently open ChatGPT or Gemini conversation locally.",
+  "permissions": ["activeTab", "downloads", "storage"],
+  "host_permissions": [
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*",
+    "https://gemini.google.com/*"
+  ],
+  "action": {
+    "default_title": "Export AI chat",
+    "default_popup": "popup/popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "https://gemini.google.com/*"
+      ],
+      "js": [
+        "content/core.js",
+        "content/adapters/chatgpt.js",
+        "content/adapters/gemini.js",
+        "content/main.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

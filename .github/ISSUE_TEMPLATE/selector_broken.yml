@@ -1,0 +1,25 @@
+name: Provider selector broken
+description: Report a provider UI change that prevents extraction
+title: "[Selector]: "
+labels: [bug, provider-selector]
+body:
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Provider
+      options: [ChatGPT, Gemini]
+    validations:
+      required: true
+  - type: textarea
+    id: symptoms
+    attributes:
+      label: Symptoms and sanitized DOM details
+      description: Do not include conversation text, cookies, tokens, session data, or credentials.
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Browser and extension versions
+    validations:
+      required: true

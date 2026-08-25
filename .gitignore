@@ -1,0 +1,14 @@
+*.zip
+*.crx
+source code exported ai.txt
+*.pem
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+node_modules/
+dist/
+coverage/

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Universal AI Chat Exporter</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <div class="brand"><span class="logo">↗</span><div><strong>Universal AI Chat Exporter</strong><small id="status">Mengecek halaman…</small></div></div>
+    <label for="format">Format export</label>
+    <select id="format">
+      <option value="markdown">Markdown (.md)</option>
+      <option value="html">HTML (.html)</option>
+      <option value="json">JSON (.json)</option>
+      <option value="txt">Plain text (.txt)</option>
+    </select>
+    <button id="export" disabled>Export percakapan</button>
+    <p id="message" role="status"></p>
+    <p class="hint">Buka satu percakapan di ChatGPT atau Gemini, lalu klik export.</p>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>
