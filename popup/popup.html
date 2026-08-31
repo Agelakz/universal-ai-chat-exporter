@@ -32,6 +32,38 @@
       <span class="provider-badge" id="providerBadge" hidden></span>
     </section>
 
+    <section class="context-panel" id="contextPanel" hidden>
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">PORTABLE CONTEXT</span>
+          <h2 id="conversationTitle">Preview percakapan</h2>
+        </div>
+        <button class="text-button" id="togglePreview" type="button" aria-expanded="false">Preview</button>
+      </div>
+
+      <div class="context-stats" aria-label="Estimasi context terpilih">
+        <span><strong id="selectedCount">0</strong> pesan</span>
+        <span><strong id="tokenEstimate">0</strong> ≈ token</span>
+        <span><strong id="sizeEstimate">0 KB</strong></span>
+      </div>
+
+      <div class="preview" id="preview" hidden>
+        <div class="selection-tools">
+          <span>Pilih pesan untuk export atau handoff</span>
+          <span>
+            <button class="inline-button" id="selectAll" type="button">Semua</button>
+            <button class="inline-button" id="selectNone" type="button">Kosongkan</button>
+          </span>
+        </div>
+        <div class="message-list" id="messageList"></div>
+      </div>
+
+      <button class="copy-button" id="copyForAI" type="button">
+        <span>Copy for AI</span>
+        <small>Salin context terpilih untuk AI lain</small>
+      </button>
+    </section>
+
     <fieldset class="format-picker">
       <legend>Pilih format</legend>
       <div class="format-grid">
@@ -77,6 +109,12 @@
       </svg>
     </button>
 
+    <div class="import-row">
+      <span>Punya capsule sebelumnya?</span>
+      <label class="import-button" for="importFile">Import JSON</label>
+      <input id="importFile" type="file" accept="application/json,.json" hidden>
+    </div>
+
     <p class="message" id="message" role="status" aria-live="polite"></p>
 
     <footer>
@@ -89,6 +127,7 @@
       <span><strong>Privasi terjaga</strong> · Diproses lokal di browser</span>
     </footer>
   </main>
+  <script src="../content/core.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

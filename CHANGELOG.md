@@ -2,9 +2,22 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-01
+
+### Added
+
+- Versioned Universal AI Conversation JSON capsules with legacy JSON import support.
+- Local capsule import and schema validation.
+- Message preview and per-message selection before export or handoff.
+- Approximate context token and byte-size estimates.
+- Copy for AI with an explicit untrusted-transcript boundary and no automatic submission.
+- Full-history ChatGPT and Gemini extraction with DOM fallback.
+
 ### Changed
 
 - Redesigned the extension popup with clearer conversation status, visual format selection, improved export feedback, and local-processing guidance.
+- JSON exports now use capsule schema version 1.
+- Bumped the extension version to 0.3.0.
 
 ## [0.2.0] - 2026-08-31
 

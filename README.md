@@ -2,7 +2,7 @@
 
 **Export, archive, and safely continue your AI conversations anywhere.**
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue)](./manifest.json)
+[![Version](https://img.shields.io/badge/version-0.3.0-blue)](./manifest.json)
 [![Manifest](https://img.shields.io/badge/manifest-v3-green)](./manifest.json)
 [![License](https://img.shields.io/badge/license-MIT-yellow)](./LICENSE)
 [![Privacy](https://img.shields.io/badge/privacy-local--only-brightgreen)](./PRIVACY.md)
@@ -12,7 +12,7 @@ Universal AI Chat Exporter is a free, open-source browser extension that saves t
 
 The project is growing from a simple exporter into a portable, privacy-conscious conversation layer. The long-term goal is to let people keep their AI work, search their own archive, and safely continue a conversation in another AI without silently sending anything.
 
-> Current release: export the open conversation locally. Archive, import, and cross-AI continuation are planned and are not available yet.
+> Current release: export, preview, select, import, and copy portable AI context locally. A persistent archive and direct cross-AI continuation are planned and are not available yet.
 
 ## Why this project exists
 
@@ -31,6 +31,10 @@ Universal AI Chat Exporter is being built around three principles:
 - Fall back to the visible page when a provider's internal response is unavailable or changes.
 - Preserve the active branch of branched ChatGPT and Claude conversations.
 - Export to Markdown, standalone HTML, JSON, or plain text.
+- Preview messages and choose exactly which ones to include.
+- Estimate context size and approximate token usage before export or handoff.
+- Copy selected messages in a boundary-marked **Copy for AI** format.
+- Import and validate versioned conversation capsules, including legacy JSON exports.
 - Generate safe filenames across operating systems.
 - Process exports locally with no project backend, analytics, or telemetry.
 
@@ -110,8 +114,8 @@ If the response cannot be used, the adapter falls back to Claude's rendered user
 │                                                             v                            │
 │  ┌──────────────────────┐           ┌────────────────────────────────────────────────┐   │
 │  │ Popup UI             │──────────▶│ Shared core                                    │   │
-│  │ format + export      │           │  - clean and deduplicate messages              │   │
-│  │ status               │           │  - serialize Markdown / HTML / JSON / text     │   │
+│  │ preview + selection  │           │  - normalize and validate conversations        │   │
+│  │ import + Copy for AI │           │  - capsule, context, and export serializers     │   │
 │  └──────────────────────┘           └───────────────────────┬────────────────────────┘   │
 │                                                             │                            │
 │                                                             v                            │
@@ -126,7 +130,7 @@ If the response cannot be used, the adapter falls back to Claude's rendered user
 
 - Provider requests use the session that already exists inside the user's browser.
 - The extension does not copy, store, or export cookies and authentication headers.
-- Chat content is normalized in memory and sent only to the browser download system after the user clicks Export.
+- Chat content is normalized in memory and reaches the download system or clipboard only after the matching user action.
 - The Gemini page-world bridge accepts conversation data only for the current Gemini origin and conversation path.
 - There is no application server between the AI page and the exported file.
 
@@ -148,7 +152,7 @@ universal-ai-chat-exporter/
 ├── popup/
 │   ├── popup.html                   # Extension popup markup
 │   ├── popup.css                    # Popup presentation
-│   └── popup.js                     # Status, format preference, and export action
+│   └── popup.js                     # Preview, selection, import, copy, and export actions
 ├── PRIVACY.md
 ├── CONTRIBUTING.md
 └── README.md
@@ -178,13 +182,38 @@ Every provider adapter returns the same minimal internal shape:
 
 Keeping provider extraction separate from serialization makes it easier to add providers and output formats without duplicating the whole export pipeline.
 
+## Portable capsule schema
+
+JSON exports wrap the normalized conversation in a versioned envelope. Import validates the schema and version before any content is shown or re-exported.
+
+```json
+{
+  "schema": "universal-ai-chat/conversation",
+  "version": 1,
+  "exportedAt": "2026-09-01T00:00:00.000Z",
+  "conversation": {
+    "provider": "ChatGPT",
+    "title": "Example conversation",
+    "url": "https://chatgpt.com/c/...",
+    "messages": [
+      {
+        "role": "user",
+        "content": "How should this feature work?"
+      }
+    ]
+  }
+}
+```
+
+Version 1 accepts only `user` and `assistant` message roles with string content. The importer also migrates the unversioned JSON shape produced by releases before 0.3.0.
+
 ## Export formats
 
 | Format | Best for |
 | --- | --- |
 | Markdown | Obsidian, notes, documentation, and version control |
 | HTML | A readable, standalone offline copy |
-| JSON | Structured archives, future imports, and integrations |
+| JSON | Versioned portable capsules, imports, and integrations |
 | Plain text | Simple, portable backups and manual AI handoff |
 
 ## Installation
@@ -215,9 +244,10 @@ Load the repository directory as an unpacked extension. There is no build step a
 1. Open a saved conversation in ChatGPT, Gemini, or Claude.
 2. Click the extension icon.
 3. Confirm that the provider and message count are detected.
-4. Select Markdown, HTML, JSON, or plain text.
-5. Click **Export percakapan**.
-6. Choose where the browser should save the file.
+4. Preview the conversation and optionally deselect messages.
+5. Review the approximate token and file-size estimate.
+6. Choose **Copy for AI**, or select Markdown, HTML, JSON, or plain text and click **Export pilihan**.
+7. A JSON capsule can also be imported locally from any tab.
 
 For Gemini, refresh the page once after the extension is installed, updated, or reloaded. You should not need to scroll through the conversation before exporting when structured extraction succeeds.
 
@@ -262,11 +292,11 @@ The roadmap moves from reliable export toward a user-controlled conversation por
 
 ### Phase 2 — Portable context
 
-- [ ] Versioned Universal AI Conversation JSON schema
-- [ ] **Copy for AI** format that clearly separates transcript from new instructions
-- [ ] Token and size estimate before copying or continuing a conversation
-- [ ] Preview and selection of messages included in a handoff
-- [ ] Import and validate a previously exported conversation capsule
+- [x] Versioned Universal AI Conversation JSON schema
+- [x] **Copy for AI** format that clearly separates transcript from new instructions
+- [x] Token and size estimate before copying or continuing a conversation
+- [x] Preview and selection of messages included in a handoff
+- [x] Import and validate a previously exported conversation capsule
 
 ### Phase 3 — Safely continue anywhere
 

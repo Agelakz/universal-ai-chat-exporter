@@ -1,6 +1,22 @@
 (() => {
   const E = window.AIChatExporter;
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+    if (message?.type === "GET_CURRENT_CONVERSATION") {
+      const adapter = E.getAdapter();
+      if (!adapter) {
+        sendResponse({ ok: false, supported: false });
+        return false;
+      }
+      Promise.resolve(adapter.extract())
+        .then((conversation) => sendResponse({
+          ok: true,
+          supported: true,
+          conversation: E.normalizeConversation(conversation)
+        }))
+        .catch((error) => sendResponse({ ok: false, supported: true, error: error.message }));
+      return true;
+    }
+
     if (message?.type === "GET_PAGE_STATUS") {
       const adapter = E.getAdapter();
       if (!adapter) {
