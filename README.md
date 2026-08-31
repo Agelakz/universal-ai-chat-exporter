@@ -2,7 +2,7 @@
 
 Export your ChatGPT, Gemini, and Claude conversations to Markdown, HTML, JSON, or plain text — directly from your browser.
 
-![Version](https://img.shields.io/badge/version-0.1.0-blue)
+![Version](https://img.shields.io/badge/version-0.2.0-blue)
 ![Manifest](https://img.shields.io/badge/manifest-v3-green)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
 ![Privacy](https://img.shields.io/badge/privacy-local--only-brightgreen)
@@ -101,7 +101,7 @@ There is no `<all_urls>` access.
 ## Known limitations
 
 - Only the currently open conversation is exported.
-- Only messages loaded on the page can be captured.
+- Claude uses its conversation response when available, so loaded message history does not depend on scrolling. ChatGPT and Gemini currently capture messages loaded on the page.
 - Binary attachments are not downloaded.
 - Complex interactive content may use a text fallback.
 - Provider UI updates can temporarily break extraction.
@@ -110,9 +110,11 @@ There is no `<all_urls>` access.
 
 - [x] ChatGPT support
 - [x] Gemini support
+- [x] Claude support with active-branch extraction
 - [x] Markdown, HTML, JSON, and plain-text exports
-- [x] Claude support
+- [ ] Full-history extraction without scrolling for ChatGPT and Gemini
 - [ ] Improved rich-content preservation
+- [ ] Richer attachment, citation, and artifact metadata
 - [ ] Additional AI providers
 
 ## Development
