@@ -19,6 +19,7 @@ The popup detects the supported conversation open in the active tab and lets you
 ## Features
 
 - Export the current conversation.
+- Full-history extraction without scrolling when the provider conversation response is available.
 - Support for ChatGPT, Gemini, and Claude.
 - Markdown export.
 - Standalone HTML export for offline viewing.
@@ -101,7 +102,7 @@ There is no `<all_urls>` access.
 ## Known limitations
 
 - Only the currently open conversation is exported.
-- Claude uses its conversation response when available, so loaded message history does not depend on scrolling. ChatGPT and Gemini currently capture messages loaded on the page.
+- ChatGPT and Claude request the current conversation response when available. Gemini captures its conversation response as the page loads. All providers fall back to messages currently loaded in the DOM if their internal response changes or is unavailable.
 - Binary attachments are not downloaded.
 - Complex interactive content may use a text fallback.
 - Provider UI updates can temporarily break extraction.
@@ -112,7 +113,7 @@ There is no `<all_urls>` access.
 - [x] Gemini support
 - [x] Claude support with active-branch extraction
 - [x] Markdown, HTML, JSON, and plain-text exports
-- [ ] Full-history extraction without scrolling for ChatGPT and Gemini
+- [x] Full-history extraction without scrolling for ChatGPT and Gemini, with DOM fallback
 - [ ] Improved rich-content preservation
 - [ ] Richer attachment, citation, and artifact metadata
 - [ ] Additional AI providers

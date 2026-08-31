@@ -23,7 +23,7 @@
       const adapter = E.getAdapter();
       if (!adapter) throw new Error("Website AI ini belum didukung.");
       const conversation = await adapter.extract();
-      if (!conversation.messages.length) throw new Error("Percakapan belum ditemukan. Coba scroll chat sampai semua pesan termuat.");
+      if (!conversation.messages.length) throw new Error("Percakapan belum ditemukan. Coba refresh halaman lalu buka extension lagi.");
       const payload = E.serialize(conversation, message.format || "markdown");
       return new Promise((resolve) => {
         chrome.runtime.sendMessage({ type: "DOWNLOAD_EXPORT", payload }, (result) => {
