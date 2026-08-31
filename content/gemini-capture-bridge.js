@@ -2,8 +2,7 @@
   const Capture = window.AIChatExporterCapture = window.AIChatExporterCapture || {};
 
   window.addEventListener("message", (event) => {
-    if (event.source !== window || event.origin !== location.origin ||
-        event.data?.type !== "AI_CHAT_EXPORTER_GEMINI_CONVERSATION") return;
+    if (event.origin !== location.origin || event.data?.type !== "AI_CHAT_EXPORTER_GEMINI_CONVERSATION") return;
     const payload = event.data.payload;
     if (!payload || payload.source !== "gemini-rpc" || !Array.isArray(payload.messages)) return;
 

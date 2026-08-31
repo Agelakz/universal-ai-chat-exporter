@@ -2,7 +2,7 @@
 
 **Export, archive, and safely continue your AI conversations anywhere.**
 
-[![Version](https://img.shields.io/badge/version-0.3.0-blue)](./manifest.json)
+[![Version](https://img.shields.io/badge/version-0.4.0-blue)](./manifest.json)
 [![Manifest](https://img.shields.io/badge/manifest-v3-green)](./manifest.json)
 [![License](https://img.shields.io/badge/license-MIT-yellow)](./LICENSE)
 [![Privacy](https://img.shields.io/badge/privacy-local--only-brightgreen)](./PRIVACY.md)
@@ -153,6 +153,11 @@ universal-ai-chat-exporter/
 │   ├── popup.html                   # Extension popup markup
 │   ├── popup.css                    # Popup presentation
 │   └── popup.js                     # Preview, selection, import, copy, and export actions
+├── tests/
+│   ├── unit/                         # Core rich-content and serializer tests
+│   └── e2e/                          # Synthetic long-chat browser fixtures
+├── package.json                      # Test scripts and Playwright dependency
+├── playwright.config.js             # Extension browser-test configuration
 ├── PRIVACY.md
 ├── CONTRIBUTING.md
 └── README.md
@@ -160,7 +165,7 @@ universal-ai-chat-exporter/
 
 ## Shared conversation model
 
-Every provider adapter returns the same minimal internal shape:
+Every provider adapter returns the same normalized shape. Rich fields are optional and retained only when a provider exposes them:
 
 ```json
 {
@@ -174,7 +179,19 @@ Every provider adapter returns the same minimal internal shape:
     },
     {
       "role": "assistant",
-      "content": "Start with a small, testable workflow."
+      "content": "Start with a small, testable workflow.",
+      "codeBlocks": [
+        { "language": "js", "content": "console.log('ready');" }
+      ],
+      "citations": [
+        { "title": "Reference", "url": "https://example.com/reference" }
+      ],
+      "attachments": [
+        { "name": "requirements.pdf", "mimeType": "application/pdf" }
+      ],
+      "artifacts": [
+        { "title": "Prototype", "type": "code", "language": "html", "content": "<main>...</main>" }
+      ]
     }
   ]
 }
@@ -205,7 +222,7 @@ JSON exports wrap the normalized conversation in a versioned envelope. Import va
 }
 ```
 
-Version 1 accepts only `user` and `assistant` message roles with string content. The importer also migrates the unversioned JSON shape produced by releases before 0.3.0.
+Version 1 accepts `user` and `assistant` roles with string content plus optional normalized rich-content arrays. The importer also migrates the unversioned JSON shape produced by releases before 0.3.0.
 
 ## Export formats
 
@@ -287,8 +304,8 @@ The roadmap moves from reliable export toward a user-controlled conversation por
 - [x] Full-history extraction without scrolling when structured responses are available
 - [x] Active-branch extraction for ChatGPT and Claude
 - [x] DOM fallback for provider changes and unsupported conversation states
-- [ ] Browser-level end-to-end regression fixtures for long conversations
-- [ ] Improved code block, citation, attachment, and artifact preservation
+- [x] Browser-level end-to-end regression fixtures for long conversations
+- [x] Improved code block, citation, attachment, and artifact preservation
 
 ### Phase 2 — Portable context
 
@@ -338,13 +355,20 @@ To keep the project understandable and trustworthy, the following are not curren
 - Provider internal APIs and RPC schemas are undocumented and may change.
 - The DOM fallback can only export messages currently rendered by the page.
 - Binary attachments are not downloaded.
-- Some citations, canvases, artifacts, tool calls, and interactive content use a text fallback.
+- Rich metadata is best-effort because provider schemas are undocumented; unsupported interactive content uses a text fallback.
 - Gemini must load the conversation after the capture scripts are active.
-- Full-history behavior has parser-level coverage but still benefits from browser-level testing across different account and conversation types.
+- Browser regression fixtures use synthetic provider responses; live-provider smoke tests are still needed after provider updates.
 
 ## Development
 
-The project uses plain JavaScript and Chrome Extension Manifest V3. It intentionally has no framework, bundler, backend, or required build step.
+The project uses plain JavaScript and Chrome Extension Manifest V3. It intentionally has no framework, bundler, backend, or required build step. Node.js 20+ is used only for automated tests.
+
+```bash
+npm install
+npm test
+npx playwright install chromium
+npm run test:e2e
+```
 
 After editing a content script:
 

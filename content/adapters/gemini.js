@@ -12,7 +12,11 @@
           provider: "Gemini",
           title: document.querySelector("h1")?.textContent || document.title.replace(/\s*[|–-]\s*Gemini.*$/i, "") || "Gemini Conversation",
           url: location.href,
-          messages: E.uniqueMessages(captured.messages)
+          extractionMethod: "structured",
+          messages: E.uniqueMessages(captured.messages.map((message) => ({
+            ...message,
+            codeBlocks: E.codeBlocksFromText(message.content)
+          })))
         };
       }
 
@@ -23,12 +27,13 @@
         const marker = `${tag} ${node.getAttribute("data-test-id") || ""}`;
         const role = marker.includes("user") ? "user" : "assistant";
         const content = node.querySelector(".query-text, .response-content, message-content, .markdown") || node;
-        return { role, content: E.textFrom(content) };
+        return E.messageFromElement(content, role);
       });
       return {
         provider: "Gemini",
         title: document.querySelector("h1")?.textContent || document.title.replace(/\s*[|–-]\s*Gemini.*$/i, "") || "Gemini Conversation",
         url: location.href,
+        extractionMethod: "dom",
         messages: E.uniqueMessages(messages)
       };
     }

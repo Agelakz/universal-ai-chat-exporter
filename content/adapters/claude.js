@@ -59,19 +59,43 @@
     return "";
   };
 
-  const fileLabels = (message) => {
+  const attachmentMetadata = (message) => {
     const items = [...(message.attachments || []), ...(message.files || [])];
-    return items.map((file) => file.file_name || file.fileName || file.name)
-      .filter(Boolean)
-      .map((name) => `[File: ${name}]`);
+    return items.map((file) => ({
+      name: file.file_name || file.fileName || file.name,
+      mimeType: file.mime_type || file.mimeType,
+      size: file.size
+    })).filter((file) => file.name);
   };
+
+  const blockCitations = (blocks) => blocks.flatMap((block) => (block?.citations || []).flatMap((citation) => {
+    const url = citation.url || citation.source?.url;
+    const title = citation.title || citation.source?.title || citation.cited_text || url;
+    return title || url ? [{ title, url }] : [];
+  }));
+
+  const blockArtifacts = (blocks) => blocks.flatMap((block) => {
+    if (!block || !["artifact", "code", "tool_result"].includes(block.type)) return [];
+    const content = typeof block.content === "string" ? block.content : typeof block.text === "string" ? block.text : "";
+    return content ? [{
+      title: block.title || block.name || "Artifact",
+      type: block.type,
+      language: block.language || "",
+      content
+    }] : [];
+  });
 
   const apiMessages = (conversation) => activeBranch(conversation).map((message) => {
     const blocks = Array.isArray(message.content) ? message.content.map(blockText).filter(Boolean) : [];
     const text = blocks.join("\n\n") || message.text || "";
+    const rawBlocks = Array.isArray(message.content) ? message.content : [];
     return {
       role: message.sender === "human" ? "user" : "assistant",
-      content: [...fileLabels(message), text].filter(Boolean).join("\n\n")
+      content: text,
+      codeBlocks: E.codeBlocksFromText(text),
+      citations: blockCitations(rawBlocks),
+      attachments: attachmentMetadata(message),
+      artifacts: blockArtifacts(rawBlocks)
     };
   });
 
@@ -90,7 +114,8 @@
       provider: "Claude",
       title: document.querySelector("h1")?.textContent || document.title.replace(/\s*[|–-]\s*Claude.*$/i, "") || "Claude Conversation",
       url: location.href,
-      messages: E.uniqueMessages(tagged.map(({ node, role }) => ({ role, content: E.textFrom(node) })))
+      extractionMethod: "dom",
+      messages: E.uniqueMessages(tagged.map(({ node, role }) => E.messageFromElement(node, role)))
     };
   };
 
@@ -112,6 +137,7 @@
           provider: "Claude",
           title: conversation.name || "Claude Conversation",
           url: location.href,
+          extractionMethod: "structured",
           messages: E.uniqueMessages(apiMessages(conversation))
         };
       } catch (_error) {

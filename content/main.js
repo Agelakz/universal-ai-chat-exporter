@@ -11,6 +11,7 @@
         .then((conversation) => sendResponse({
           ok: true,
           supported: true,
+          extractionMethod: conversation.extractionMethod || "dom",
           conversation: E.normalizeConversation(conversation)
         }))
         .catch((error) => sendResponse({ ok: false, supported: true, error: error.message }));

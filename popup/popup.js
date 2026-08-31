@@ -97,7 +97,7 @@ const renderMessages = () => {
   });
 };
 
-const loadConversation = (value, source = "page") => {
+const loadConversation = (value, source = "page", extractionMethod = "") => {
   conversation = E.normalizeConversation(value);
   selectedIndexes = new Set(conversation.messages.map((_message, index) => index));
   conversationTitle.textContent = conversation.title;
@@ -106,7 +106,10 @@ const loadConversation = (value, source = "page") => {
   providerBadge.textContent = conversation.provider;
   statusCard.dataset.state = "ready";
   statusEl.textContent = source === "import" ? "Capsule siap" : "Percakapan siap";
-  statusDetailEl.textContent = `${conversation.messages.length} pesan · ${source === "import" ? "hasil import" : "siap diproses"}`;
+  const sourceLabel = source === "import"
+    ? "hasil import"
+    : extractionMethod === "structured" ? "full history" : "DOM fallback";
+  statusDetailEl.textContent = `${conversation.messages.length} pesan · ${sourceLabel}`;
   renderMessages();
   updateSelection();
 };
@@ -161,7 +164,7 @@ async function initialize() {
     if (conversation) return;
     if (!result?.supported) throw new Error("Buka ChatGPT, Gemini, atau Claude.");
     if (!result.ok) throw new Error(result.error || "Percakapan tidak bisa dibaca.");
-    loadConversation(result.conversation);
+    loadConversation(result.conversation, "page", result.extractionMethod);
   } catch (error) {
     if (conversation) return;
     statusCard.dataset.state = "error";

@@ -2,6 +2,28 @@
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-01
+
+### Added
+
+- Browser-level Playwright regression fixtures covering 120-message ChatGPT, Gemini, and Claude conversations without scrolling.
+- A browser-level DOM-fallback scenario for long conversations when structured extraction fails.
+- Normalized code block, citation, attachment, and artifact metadata in JSON capsules and rendered exports.
+
+### Changed
+
+- Markdown, HTML, and plain-text serializers now preserve rich message metadata where the provider exposes it.
+- ChatGPT code/canvas messages are associated with the visible assistant response as artifacts instead of becoming fake standalone turns.
+- Citation URLs are restricted to safe web protocols, and signed attachment download URLs are not retained.
+
+## [0.3.1] - 2026-09-01
+
+### Fixed
+
+- ChatGPT full-history extraction now uses the current plural conversation endpoint, parses its flat `messages` response, and follows previous-page cursors for long chats.
+- Gemini structured captures are no longer discarded by an invalid cross-world `event.source` identity check.
+- The popup now reports `full history` or `DOM fallback` so extraction failures are visible during testing.
+
 ## [0.3.0] - 2026-09-01
 
 ### Added
