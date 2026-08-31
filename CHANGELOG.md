@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Redesigned the extension popup with clearer conversation status, visual format selection, improved export feedback, and local-processing guidance.
+
 ## [0.2.0] - 2026-08-31
 
 ### Added

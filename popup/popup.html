@@ -7,18 +7,87 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <main>
-    <div class="brand"><span class="logo">↗</span><div><strong>Universal AI Chat Exporter</strong><small id="status">Mengecek halaman…</small></div></div>
-    <label for="format">Format export</label>
-    <select id="format">
-      <option value="markdown">Markdown (.md)</option>
-      <option value="html">HTML (.html)</option>
-      <option value="json">JSON (.json)</option>
-      <option value="txt">Plain text (.txt)</option>
-    </select>
-    <button id="export" disabled>Export percakapan</button>
-    <p id="message" role="status"></p>
-    <p class="hint">Buka satu percakapan di ChatGPT atau Gemini, lalu klik export.</p>
+  <main class="app">
+    <header class="header">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand">
+        <p class="eyebrow">UNIVERSAL EXPORTER</p>
+        <h1>Simpan percakapan AI</h1>
+      </div>
+      <span class="version" id="version"></span>
+    </header>
+
+    <section class="status-card" id="statusCard" data-state="loading" aria-live="polite">
+      <span class="status-icon" aria-hidden="true">
+        <span class="status-dot"></span>
+      </span>
+      <div class="status-copy">
+        <strong id="status">Mengecek halaman…</strong>
+        <span id="statusDetail">Mencari percakapan aktif</span>
+      </div>
+      <span class="provider-badge" id="providerBadge" hidden></span>
+    </section>
+
+    <fieldset class="format-picker">
+      <legend>Pilih format</legend>
+      <div class="format-grid">
+        <label class="format-option">
+          <input type="radio" name="format" value="markdown" checked>
+          <span class="format-card">
+            <span class="format-extension">MD</span>
+            <span><strong>Markdown</strong><small>Catatan & dokumen</small></span>
+            <span class="check" aria-hidden="true">✓</span>
+          </span>
+        </label>
+        <label class="format-option">
+          <input type="radio" name="format" value="html">
+          <span class="format-card">
+            <span class="format-extension">HTML</span>
+            <span><strong>Halaman web</strong><small>Tampilan offline</small></span>
+            <span class="check" aria-hidden="true">✓</span>
+          </span>
+        </label>
+        <label class="format-option">
+          <input type="radio" name="format" value="json">
+          <span class="format-card">
+            <span class="format-extension">JSON</span>
+            <span><strong>Data terstruktur</strong><small>Aplikasi & data</small></span>
+            <span class="check" aria-hidden="true">✓</span>
+          </span>
+        </label>
+        <label class="format-option">
+          <input type="radio" name="format" value="txt">
+          <span class="format-card">
+            <span class="format-extension">TXT</span>
+            <span><strong>Teks biasa</strong><small>Arsip sederhana</small></span>
+            <span class="check" aria-hidden="true">✓</span>
+          </span>
+        </label>
+      </div>
+    </fieldset>
+
+    <button class="export-button" id="export" disabled>
+      <span id="buttonLabel">Export percakapan</span>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <p class="message" id="message" role="status" aria-live="polite"></p>
+
+    <footer>
+      <span class="privacy-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 3 5.5 6v5c0 4.4 2.7 7.9 6.5 10 3.8-2.1 6.5-5.6 6.5-10V6L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="m9.5 12 1.7 1.7 3.5-3.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span><strong>Privasi terjaga</strong> · Diproses lokal di browser</span>
+    </footer>
   </main>
   <script src="popup.js"></script>
 </body>
