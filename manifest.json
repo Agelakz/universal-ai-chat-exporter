@@ -2,12 +2,13 @@
   "manifest_version": 3,
   "name": "Universal AI Chat Exporter",
   "version": "0.1.0",
-  "description": "Export the currently open ChatGPT or Gemini conversation locally.",
+  "description": "Export the currently open ChatGPT, Gemini, or Claude conversation locally.",
   "permissions": ["activeTab", "downloads", "storage"],
   "host_permissions": [
     "https://chatgpt.com/*",
     "https://chat.openai.com/*",
-    "https://gemini.google.com/*"
+    "https://gemini.google.com/*",
+    "https://claude.ai/*"
   ],
   "action": {
     "default_title": "Export AI chat",
@@ -21,12 +22,14 @@
       "matches": [
         "https://chatgpt.com/*",
         "https://chat.openai.com/*",
-        "https://gemini.google.com/*"
+        "https://gemini.google.com/*",
+        "https://claude.ai/*"
       ],
       "js": [
         "content/core.js",
         "content/adapters/chatgpt.js",
         "content/adapters/gemini.js",
+        "content/adapters/claude.js",
         "content/main.js"
       ],
       "run_at": "document_idle"

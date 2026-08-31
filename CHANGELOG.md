@@ -6,6 +6,7 @@
 
 - ChatGPT current conversation export.
 - Gemini current conversation export.
+- Claude current conversation export.
 - Markdown export.
 - HTML export.
 - JSON export.

@@ -25,7 +25,8 @@ async function sendToPage(message) {
 async function initialize() {
   try {
     const result = await sendToPage({ type: "GET_PAGE_STATUS" });
-    if (!result?.supported) throw new Error("Buka ChatGPT atau Gemini.");
+    if (!result?.supported) throw new Error("Buka ChatGPT, Gemini, atau Claude.");
+    if (!result.ok) throw new Error(result.error || "Percakapan tidak bisa dibaca.");
     statusEl.textContent = `${result.provider} · ${result.messageCount} pesan ditemukan`;
     exportButton.disabled = result.messageCount === 0;
     if (!result.messageCount) messageEl.textContent = "Belum ada pesan yang bisa diexport.";
