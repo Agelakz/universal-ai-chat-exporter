@@ -44,16 +44,23 @@ const extractFromTab = async (page) => {
 
 test("ChatGPT exports 120 structured messages without scrolling", async () => {
   const page = await context.newPage();
+  const conversationId = "11111111-1111-1111-1111-111111111111";
   await page.route("https://chatgpt.com/**", async (route) => {
     const url = new URL(route.request().url());
     if (url.pathname.startsWith("/backend-api/conversations/")) {
+      if (!route.request().headers()["oai-client-version"]) {
+        await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ detail: "Unauthorized" }) });
+        return;
+      }
       expect(url.searchParams.get("num_turns")).toBe("10");
       await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(chatgptConversation(url.searchParams.get("cursor") || "")) });
     } else {
-      await route.fulfill({ status: 200, contentType: "text/html", body: domConversationHtml("chatgpt") });
+      const apiUrl = `/backend-api/conversations/${conversationId}?include_has_versions=true&num_turns=10`;
+      const body = `${domConversationHtml("chatgpt")}<script>fetch(${JSON.stringify(apiUrl)},{headers:{'oai-client-version':'fixture'}})</script>`;
+      await route.fulfill({ status: 200, contentType: "text/html", body });
     }
   });
-  await page.goto("https://chatgpt.com/c/11111111-1111-1111-1111-111111111111");
+  await page.goto(`https://chatgpt.com/c/${conversationId}`);
   const result = await extractFromTab(page);
   expect(result.ok).toBe(true);
   expect(result.extractionMethod).toBe("structured");

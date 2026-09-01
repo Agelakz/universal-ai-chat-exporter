@@ -1,13 +1,34 @@
 (() => {
   const E = window.AIChatExporter;
+
+  const capturedConversation = (id) => {
+    const captured = window.AIChatExporterCapture?.gemini;
+    return captured?.messages?.length && (!captured.conversationId || captured.conversationId === id) ? captured : null;
+  };
+
+  const waitForCapture = (id, timeout = 5000) => new Promise((resolve) => {
+    const current = capturedConversation(id);
+    if (current?.complete) return resolve(current);
+    const finish = () => {
+      window.removeEventListener("AI_CHAT_EXPORTER_GEMINI_CAPTURE_UPDATED", updated);
+      clearTimeout(timer);
+      resolve(capturedConversation(id));
+    };
+    const updated = () => {
+      if (capturedConversation(id)?.complete) finish();
+    };
+    const timer = setTimeout(finish, timeout);
+    window.addEventListener("AI_CHAT_EXPORTER_GEMINI_CAPTURE_UPDATED", updated);
+  });
+
   E.registerAdapter({
     id: "gemini",
     name: "Gemini",
     matches: ({ hostname }) => hostname === "gemini.google.com",
-    extract() {
-      const captured = window.AIChatExporterCapture?.gemini;
+    async extract() {
       const pathId = location.pathname.match(/^\/app\/([^/?#]+)/)?.[1] || "";
-      if (captured?.messages?.length && (!captured.conversationId || captured.conversationId === pathId)) {
+      const captured = await waitForCapture(pathId);
+      if (captured) {
         return {
           provider: "Gemini",
           title: document.querySelector("h1")?.textContent || document.title.replace(/\s*[|–-]\s*Gemini.*$/i, "") || "Gemini Conversation",

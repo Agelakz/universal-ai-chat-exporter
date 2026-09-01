@@ -3,6 +3,26 @@
 
   const conversationId = () => location.pathname.match(/^\/c\/([0-9a-f-]+)/i)?.[1] || "";
 
+  const capturedConversation = (id) => {
+    const captured = window.AIChatExporterCapture?.chatgpt;
+    return captured?.conversationId === id ? captured : null;
+  };
+
+  const waitForPageCapture = (id, timeout = 5000) => new Promise((resolve) => {
+    const current = capturedConversation(id);
+    if (current?.complete) return resolve(current);
+    const finish = () => {
+      window.removeEventListener("AI_CHAT_EXPORTER_CHATGPT_CAPTURE_UPDATED", updated);
+      clearTimeout(timer);
+      resolve(capturedConversation(id));
+    };
+    const updated = () => {
+      if (capturedConversation(id)?.complete) finish();
+    };
+    const timer = setTimeout(finish, timeout);
+    window.addEventListener("AI_CHAT_EXPORTER_CHATGPT_CAPTURE_UPDATED", updated);
+  });
+
   const domConversation = () => {
     const turns = [...document.querySelectorAll('[data-testid^="conversation-turn-"]')];
     const messages = turns.map((turn, index) => {
@@ -154,6 +174,18 @@
     async extract() {
       const id = conversationId();
       if (!id) return domConversation();
+
+      const captured = await waitForPageCapture(id);
+      if (captured?.conversation?.messages?.length) {
+        const messages = E.uniqueMessages(apiMessages(captured.conversation));
+        if (messages.length) return {
+          provider: "ChatGPT",
+          title: captured.conversation.title || "ChatGPT Conversation",
+          url: location.href,
+          extractionMethod: captured.complete ? "structured" : "partial",
+          messages
+        };
+      }
 
       try {
         const conversation = await fullConversation(id);

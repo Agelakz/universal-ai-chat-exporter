@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Universal AI Chat Exporter",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Export the currently open ChatGPT, Gemini, or Claude conversation locally.",
   "permissions": ["activeTab", "downloads", "storage"],
   "host_permissions": [
@@ -18,6 +18,17 @@
     "service_worker": "background.js"
   },
   "content_scripts": [
+    {
+      "matches": ["https://chatgpt.com/*", "https://chat.openai.com/*"],
+      "js": ["content/chatgpt-page-capture.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://chatgpt.com/*", "https://chat.openai.com/*"],
+      "js": ["content/chatgpt-capture-bridge.js"],
+      "run_at": "document_start"
+    },
     {
       "matches": ["https://gemini.google.com/*"],
       "js": ["content/gemini-page-capture.js"],

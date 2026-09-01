@@ -23,5 +23,6 @@
       messages,
       capturedAt: Date.now()
     };
+    window.dispatchEvent(new CustomEvent("AI_CHAT_EXPORTER_GEMINI_CAPTURE_UPDATED"));
   });
 })();

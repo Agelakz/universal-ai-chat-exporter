@@ -2,7 +2,7 @@
 
 **Export, archive, and safely continue your AI conversations anywhere.**
 
-[![Version](https://img.shields.io/badge/version-0.4.1-blue)](./manifest.json)
+[![Version](https://img.shields.io/badge/version-0.4.2-blue)](./manifest.json)
 [![Manifest](https://img.shields.io/badge/manifest-v3-green)](./manifest.json)
 [![License](https://img.shields.io/badge/license-MIT-yellow)](./LICENSE)
 [![Privacy](https://img.shields.io/badge/privacy-local--only-brightgreen)](./PRIVACY.md)
@@ -80,7 +80,7 @@ Browser download prompt
 
 ### ChatGPT
 
-The adapter reads the conversation ID from `/c/{conversation-id}` and requests the conversation response using the user's existing browser session. It uses the provider-compatible ten-turn page size and follows previous-page cursors until the active history is complete. ChatGPT represents a conversation as a graph because responses can be regenerated or branched. The exporter walks backward from `current_node`, reverses the result, and exports only the branch currently selected by the user.
+The adapter reads the conversation ID from `/c/{conversation-id}`. A page-context capture observes ChatGPT's authenticated conversation request, clones its request context, and follows previous-page cursors using the provider-compatible ten-turn page size. This avoids authentication failures that can occur when an isolated extension script repeats the endpoint directly. ChatGPT represents a conversation as a graph because responses can be regenerated or branched. The exporter walks backward from `current_node`, reverses the result, and exports only the branch currently selected by the user.
 
 If the structured request fails, the adapter extracts the rendered conversation turns from the page.
 
@@ -131,7 +131,7 @@ If the response cannot be used, the adapter falls back to Claude's rendered user
 - Provider requests use the session that already exists inside the user's browser.
 - The extension does not copy, store, or export cookies and authentication headers.
 - Chat content is normalized in memory and reaches the download system or clipboard only after the matching user action.
-- The Gemini page-world bridge accepts conversation data only for the current Gemini origin and conversation path.
+- The ChatGPT and Gemini page-world bridges accept conversation data only from the current provider origin and matching conversation.
 - There is no application server between the AI page and the exported file.
 
 ## Project structure
@@ -143,6 +143,8 @@ universal-ai-chat-exporter/
 ├── content/
 │   ├── core.js                      # Shared text cleanup, normalization, and serializers
 │   ├── main.js                      # Popup-to-page message handling and export workflow
+│   ├── chatgpt-page-capture.js       # MAIN-world authenticated ChatGPT pagination
+│   ├── chatgpt-capture-bridge.js     # Validates ChatGPT page-world captures
 │   ├── gemini-page-capture.js       # MAIN-world Gemini RPC response observer
 │   ├── gemini-capture-bridge.js     # Isolated-world validation and in-memory capture
 │   └── adapters/
