@@ -27,7 +27,7 @@ Universal AI Chat Exporter is being built around three principles:
 ## Current capabilities
 
 - Export the conversation currently open in ChatGPT, Gemini, or Claude.
-- Extract full conversation history without scrolling when the provider response is available.
+- Attempt structured full-history extraction before falling back to messages rendered by the provider page.
 - Fall back to the visible page when a provider's internal response is unavailable or changes.
 - Preserve the active branch of branched ChatGPT and Claude conversations.
 - Export to Markdown, standalone HTML, JSON, or plain text.
@@ -48,8 +48,8 @@ The popup detects the supported AI in the active tab, reports how many messages 
 
 | Provider | Extraction strategy | DOM fallback | Status |
 | --- | --- | --- | --- |
-| ChatGPT | Authenticated conversation response and active-branch traversal | Yes | Supported |
-| Gemini | Captured conversation RPC decoded as the page loads | Yes | Supported |
+| ChatGPT | Experimental authenticated response capture and active-branch traversal | Yes | Supported; no-scroll best effort |
+| Gemini | Experimental expanded conversation RPC capture | Yes | Supported; no-scroll best effort |
 | Claude | Authenticated conversation response and active-branch traversal | Yes | Supported |
 
 Provider websites and their internal response formats can change without notice. The DOM fallback keeps basic export available, but a provider update may temporarily reduce extraction quality.
@@ -303,7 +303,7 @@ The roadmap moves from reliable export toward a user-controlled conversation por
 
 - [x] ChatGPT, Gemini, and Claude adapters
 - [x] Markdown, HTML, JSON, and plain-text output
-- [x] Full-history extraction without scrolling when structured responses are available
+- [ ] Reliable full-history extraction without scrolling across live ChatGPT and Gemini account variants
 - [x] Active-branch extraction for ChatGPT and Claude
 - [x] DOM fallback for provider changes and unsupported conversation states
 - [x] Browser-level end-to-end regression fixtures for long conversations
@@ -355,6 +355,7 @@ To keep the project understandable and trustworthy, the following are not curren
 
 - Only the conversation currently open in the active tab can be exported.
 - Provider internal APIs and RPC schemas are undocumented and may change.
+- ChatGPT and Gemini may still require scrolling to render older turns when structured capture is unavailable, rejected, or incomplete.
 - The DOM fallback can only export messages currently rendered by the page.
 - Binary attachments are not downloaded.
 - Rich metadata is best-effort because provider schemas are undocumented; unsupported interactive content uses a text fallback.

@@ -6,9 +6,9 @@
 
 ### Fixed
 
-- ChatGPT full-history pagination now runs in the page context by cloning the provider's authenticated request; current live HARs showed direct isolated-script requests returning `401` while page requests returned `200`.
+- Added experimental ChatGPT page-context pagination by cloning the provider's authenticated request; direct isolated-script requests return `401` on observed live sessions.
 - ChatGPT page captures are validated in the isolated bridge and marked full only after all previous-page cursors have completed.
-- Gemini extraction now waits for the expanded RPC capture instead of returning the initial ten-turn response during a race.
+- Gemini extraction now waits for the expanded RPC capture instead of immediately returning the initial ten-turn response during a race.
 - Browser regression coverage now reproduces ChatGPT's page-context `200` versus isolated-context `401` behavior.
 
 ## [0.4.1] - 2026-09-01
