@@ -12,8 +12,14 @@
       .filter((message) => message.content);
 
     if (!messages.length) return;
+    const conversationId = String(payload.conversationId || "");
+    const previous = Capture.gemini;
+    const sameConversation = previous && previous.conversationId === conversationId;
+    if (sameConversation && previous.complete && !payload.complete) return;
+    if (sameConversation && previous.messages.length > messages.length && !payload.complete) return;
     Capture.gemini = {
-      conversationId: String(payload.conversationId || ""),
+      conversationId,
+      complete: Boolean(payload.complete),
       messages,
       capturedAt: Date.now()
     };

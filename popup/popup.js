@@ -108,7 +108,9 @@ const loadConversation = (value, source = "page", extractionMethod = "") => {
   statusEl.textContent = source === "import" ? "Capsule siap" : "Percakapan siap";
   const sourceLabel = source === "import"
     ? "hasil import"
-    : extractionMethod === "structured" ? "full history" : "DOM fallback";
+    : extractionMethod === "structured"
+      ? "full history"
+      : extractionMethod === "partial" ? "partial history" : "DOM fallback";
   statusDetailEl.textContent = `${conversation.messages.length} pesan · ${sourceLabel}`;
   renderMessages();
   updateSelection();

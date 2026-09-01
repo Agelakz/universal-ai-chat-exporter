@@ -121,24 +121,21 @@
   };
 
   const fullConversation = async (id) => {
-    let conversation;
-    try {
-      conversation = await conversationPage(id, 100000);
-    } catch (_error) {
-      conversation = await conversationPage(id, 100);
-    }
+    // Match the provider's own request size, then follow its cursors. Very large
+    // num_turns values are rejected by some live ChatGPT deployments.
+    const conversation = await conversationPage(id, 10);
 
     const messages = [...conversation.messages];
     const messageIds = new Set(messages.map((message) => message?.id).filter(Boolean));
     const seenCursors = new Set();
     let pageInfo = conversation.page_info;
 
-    for (let pageNumber = 0; pageInfo?.has_previous_page && pageNumber < 100; pageNumber += 1) {
+    for (let pageNumber = 0; pageInfo?.has_previous_page && pageNumber < 1000; pageNumber += 1) {
       const cursor = pageInfo.start_cursor;
       if (!cursor || seenCursors.has(cursor)) break;
       seenCursors.add(cursor);
 
-      const previous = await conversationPage(id, 100, cursor);
+      const previous = await conversationPage(id, 10, cursor);
       const unique = previous.messages.filter((message) => !message?.id || !messageIds.has(message.id));
       unique.forEach((message) => {
         if (message?.id) messageIds.add(message.id);

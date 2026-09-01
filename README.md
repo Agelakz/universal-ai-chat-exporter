@@ -2,7 +2,7 @@
 
 **Export, archive, and safely continue your AI conversations anywhere.**
 
-[![Version](https://img.shields.io/badge/version-0.4.0-blue)](./manifest.json)
+[![Version](https://img.shields.io/badge/version-0.4.1-blue)](./manifest.json)
 [![Manifest](https://img.shields.io/badge/manifest-v3-green)](./manifest.json)
 [![License](https://img.shields.io/badge/license-MIT-yellow)](./LICENSE)
 [![Privacy](https://img.shields.io/badge/privacy-local--only-brightgreen)](./PRIVACY.md)
@@ -80,13 +80,13 @@ Browser download prompt
 
 ### ChatGPT
 
-The adapter reads the conversation ID from `/c/{conversation-id}` and requests the conversation response using the user's existing browser session. ChatGPT represents a conversation as a graph because responses can be regenerated or branched. The exporter walks backward from `current_node`, reverses the result, and exports only the branch currently selected by the user.
+The adapter reads the conversation ID from `/c/{conversation-id}` and requests the conversation response using the user's existing browser session. It uses the provider-compatible ten-turn page size and follows previous-page cursors until the active history is complete. ChatGPT represents a conversation as a graph because responses can be regenerated or branched. The exporter walks backward from `current_node`, reverses the result, and exports only the branch currently selected by the user.
 
 If the structured request fails, the adapter extracts the rendered conversation turns from the page.
 
 ### Gemini
 
-Gemini loads conversation history through a batched RPC response. A small script running in the page context observes the `hNvQHb` conversation response, decodes only the user and assistant messages, and passes the normalized result to the isolated extension context.
+Gemini loads conversation history through a batched RPC response. A small script running in the page context observes the `hNvQHb` conversation request, reuses its authenticated payload to request an expanded history, decodes only the user and assistant messages, and passes the normalized result to the isolated extension context. A complete capture is never replaced by a later short chunk.
 
 The capture starts at `document_start`, so the Gemini page must be refreshed after installing or reloading the extension. If no valid captured response is available for the current `/app/{conversation-id}`, the adapter uses the rendered Gemini message elements.
 

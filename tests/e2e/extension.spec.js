@@ -4,6 +4,7 @@ const {
   LONG_MESSAGE_COUNT,
   chatgptConversation,
   geminiRpcBody,
+  geminiRequestBody,
   claudeConversation,
   domConversationHtml
 } = require("./fixtures/providers");
@@ -46,7 +47,8 @@ test("ChatGPT exports 120 structured messages without scrolling", async () => {
   await page.route("https://chatgpt.com/**", async (route) => {
     const url = new URL(route.request().url());
     if (url.pathname.startsWith("/backend-api/conversations/")) {
-      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(chatgptConversation()) });
+      expect(url.searchParams.get("num_turns")).toBe("10");
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(chatgptConversation(url.searchParams.get("cursor") || "")) });
     } else {
       await route.fulfill({ status: 200, contentType: "text/html", body: domConversationHtml("chatgpt") });
     }
@@ -66,9 +68,12 @@ test("Gemini captures 120 structured messages without scrolling", async () => {
   await page.route("https://gemini.google.com/**", async (route) => {
     const url = new URL(route.request().url());
     if (url.pathname.includes("batchexecute")) {
-      await route.fulfill({ status: 200, contentType: "application/json", body: geminiRpcBody() });
+      const form = new URLSearchParams(route.request().postData() || "");
+      const envelope = JSON.parse(form.get("f.req"));
+      const request = JSON.parse(envelope[0][0][1]);
+      await route.fulfill({ status: 200, contentType: "application/json", body: geminiRpcBody(request[1] > 10) });
     } else {
-      const body = `${domConversationHtml("gemini")}<script>fetch('/_/BardChatUi/data/batchexecute?rpcids=hNvQHb&source-path=/app/fixture-gemini')</script>`;
+      const body = `${domConversationHtml("gemini")}<script>fetch('/_/BardChatUi/data/batchexecute?rpcids=hNvQHb&source-path=/app/fixture-gemini',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded;charset=UTF-8'},body:${JSON.stringify(geminiRequestBody())}})</script>`;
       await route.fulfill({ status: 200, contentType: "text/html", body });
     }
   });

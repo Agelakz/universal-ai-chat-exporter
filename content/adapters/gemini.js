@@ -12,7 +12,7 @@
           provider: "Gemini",
           title: document.querySelector("h1")?.textContent || document.title.replace(/\s*[|–-]\s*Gemini.*$/i, "") || "Gemini Conversation",
           url: location.href,
-          extractionMethod: "structured",
+          extractionMethod: captured.complete ? "structured" : "partial",
           messages: E.uniqueMessages(captured.messages.map((message) => ({
             ...message,
             codeBlocks: E.codeBlocksFromText(message.content)

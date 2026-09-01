@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-09-01
+
+### Fixed
+
+- ChatGPT history requests now use the live provider's ten-turn page size and follow previous-page cursors instead of sending rejected oversized requests.
+- Gemini now reuses the page's authenticated RPC payload to request expanded history without scrolling.
+- Complete Gemini captures are no longer overwritten by shorter lazy-loaded chunks.
+- The popup distinguishes partial structured history from verified full history and DOM fallback.
+- Browser regression fixtures now exercise twelve ChatGPT pages and Gemini's initial-short-chunk/expanded-response flow.
+
 ## [0.4.0] - 2026-09-01
 
 ### Added

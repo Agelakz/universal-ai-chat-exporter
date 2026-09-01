@@ -1,6 +1,8 @@
 (() => {
   const RPC_ID = "hNvQHb";
   const MESSAGE_TYPE = "AI_CHAT_EXPORTER_GEMINI_CONVERSATION";
+  const FULL_HISTORY_LIMIT = 100000;
+  const expandedRequests = new Set();
 
   const clean = (value) => typeof value === "string" ? value.trim() : "";
 
@@ -26,7 +28,7 @@
     return null;
   };
 
-  const conversationFromRpc = (rpc, conversationId) => {
+  const conversationFromRpc = (rpc, conversationId, complete = false) => {
     const turns = rpc?.[0];
     if (!Array.isArray(turns)) return null;
 
@@ -42,11 +44,12 @@
     return {
       source: "gemini-rpc",
       conversationId,
+      complete,
       messages
     };
   };
 
-  const publish = (body, requestUrl) => {
+  const publish = (body, requestUrl, complete = false) => {
     if (typeof body !== "string" || !body.includes(RPC_ID)) return;
     let conversationId = "";
     try {
@@ -54,8 +57,49 @@
     } catch (_error) {
       // The path check in the isolated adapter still prevents stale captures.
     }
-    const conversation = conversationFromRpc(decodeEnvelope(body), conversationId);
+    const conversation = conversationFromRpc(decodeEnvelope(body), conversationId, complete);
     if (conversation) window.postMessage({ type: MESSAGE_TYPE, payload: conversation }, location.origin);
+  };
+
+  const expandedBody = (body) => {
+    if (typeof body !== "string") return "";
+    try {
+      const form = new URLSearchParams(body);
+      const envelope = JSON.parse(form.get("f.req"));
+      const call = envelope?.[0]?.[0];
+      if (call?.[0] !== RPC_ID || typeof call[1] !== "string") return "";
+      const request = JSON.parse(call[1]);
+      if (!Array.isArray(request) || typeof request[1] !== "number") return "";
+      request[1] = FULL_HISTORY_LIMIT;
+      call[1] = JSON.stringify(request);
+      form.set("f.req", JSON.stringify(envelope));
+      return form.toString();
+    } catch (_error) {
+      return "";
+    }
+  };
+
+  const requestFullHistory = (url, body) => {
+    const expanded = expandedBody(body);
+    if (!expanded) return;
+    let key = url;
+    try {
+      key = `${new URL(url, location.origin).searchParams.get("source-path") || location.pathname}:${expanded.length}`;
+    } catch (_error) {
+      // The URL is still safe to use as a per-page deduplication key.
+    }
+    if (expandedRequests.has(key)) return;
+    expandedRequests.add(key);
+
+    originalFetch.call(window, url, {
+      method: "POST",
+      credentials: "include",
+      headers: { "content-type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body: expanded
+    }).then((response) => {
+      if (!response.ok) throw new Error(`Gemini history request returned ${response.status}`);
+      return response.text();
+    }).then((responseBody) => publish(responseBody, url, true)).catch(() => {});
   };
 
   const originalFetch = window.fetch;
@@ -65,6 +109,12 @@
       const url = String(response.url || args[0]?.url || args[0] || "");
       if (url.includes("/_/BardChatUi/data/batchexecute") && url.includes(`rpcids=${RPC_ID}`)) {
         response.clone().text().then((body) => publish(body, url)).catch(() => {});
+        const requestBody = args[1]?.body;
+        if (typeof requestBody === "string") requestFullHistory(url, requestBody);
+        else if (requestBody instanceof URLSearchParams) requestFullHistory(url, requestBody.toString());
+        else if (args[0] instanceof Request) {
+          args[0].clone().text().then((body) => requestFullHistory(url, body)).catch(() => {});
+        }
       }
     } catch (_error) {
       // Never interfere with Gemini's own request lifecycle.
@@ -82,6 +132,8 @@
     if (this.__aiChatExporterUrl?.includes("/_/BardChatUi/data/batchexecute") &&
         this.__aiChatExporterUrl.includes(`rpcids=${RPC_ID}`)) {
       this.addEventListener("load", () => publish(this.responseText, this.__aiChatExporterUrl), { once: true });
+      const requestBody = args[0] instanceof URLSearchParams ? args[0].toString() : args[0];
+      requestFullHistory(this.__aiChatExporterUrl, requestBody);
     }
     return originalSend.apply(this, args);
   };
